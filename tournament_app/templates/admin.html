@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard — NEXUS ARENA{% endblock %}
+
+{% block content %}
+<section class="page-hero admin-hero">
+    <div class="page-hero-content">
+        <div class="section-tag">// CONTROL CENTER</div>
+        <h1 class="page-title">ADMIN <span class="accent">DASHBOARD</span></h1>
+    </div>
+</section>
+
+<section class="section">
+    <div class="admin-stats">
+        <div class="admin-stat-card">
+            <span class="admin-stat-icon">🏆</span>
+            <span class="admin-stat-num">{{ stats.total_t }}</span>
+            <span class="admin-stat-label">TOTAL TOURNAMENTS</span>
+        </div>
+        <div class="admin-stat-card">
+            <span class="admin-stat-icon">📅</span>
+            <span class="admin-stat-num">{{ stats.upcoming }}</span>
+            <span class="admin-stat-label">UPCOMING</span>
+        </div>
+        <div class="admin-stat-card">
+            <span class="admin-stat-icon">👥</span>
+            <span class="admin-stat-num">{{ stats.total_reg }}</span>
+            <span class="admin-stat-label">REGISTRATIONS</span>
+        </div>
+    </div>
+
+    <div class="admin-layout">
+        <div class="admin-panel">
+            <h2 class="admin-panel-title">// ADD TOURNAMENT</h2>
+            <form method="POST" action="{{ url_for('add_tournament') }}" id="addTournamentForm">
+                <div class="form-group">
+                    <label class="form-label">Game Name <span class="required">*</span></label>
+                    <input type="text" name="game_name" class="form-input" placeholder="e.g. VALORANT" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Date <span class="required">*</span></label>
+                        <input type="date" name="date" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Time <span class="required">*</span></label>
+                        <input type="time" name="time" class="form-input" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Prize Pool <span class="required">*</span></label>
+                        <input type="text" name="prize_pool" class="form-input" placeholder="e.g. $5,000" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Max Teams</label>
+                        <input type="number" name="max_teams" class="form-input" value="32" min="2" max="256">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Format</label>
+                    <select name="format" class="form-input form-select">
+                        <option value="Team">Team</option>
+                        <option value="Solo">Solo</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Rules <span class="required">*</span></label>
+                    <textarea name="rules" class="form-input form-textarea" rows="4"
+                              placeholder="Enter tournament rules..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">ADD TOURNAMENT</button>
+            </form>
+        </div>
+
+        <div class="admin-panel">
+            <h2 class="admin-panel-title">// MANAGE TOURNAMENTS</h2>
+            <div class="admin-table-wrap">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>GAME</th>
+                            <th>DATE</th>
+                            <th>PRIZE</th>
+                            <th>FORMAT</th>
+                            <th>ACTION</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for t in tournaments %}
+                        <tr>
+                            <td>{{ t.id }}</td>
+                            <td>
+                                <span class="table-game">
+                                    {{ icons.get(t.game_name, '🎮') }} {{ t.game_name }}
+                                </span>
+                            </td>
+                            <td>{{ t.date }}</td>
+                            <td class="prize-text">{{ t.prize_pool }}</td>
+                            <td><span class="card-format {{ 'format-solo' if t.format == 'Solo' else 'format-team' }}">{{ t.format }}</span></td>
+                            <td>
+                                <div class="table-actions">
+                                    <a href="{{ url_for('tournament_detail', tid=t.id) }}" class="btn btn-xs btn-ghost">VIEW</a>
+                                    <a href="{{ url_for('delete_tournament', tid=t.id) }}"
+                                       class="btn btn-xs btn-danger"
+                                       onclick="return confirm('Delete {{ t.game_name }}? This also removes all registrations for it.')">
+                                        DELETE
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="6" class="empty-row">No tournaments yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-panel full-width">
+        <div class="panel-header-row">
+            <h2 class="admin-panel-title">// ALL REGISTRATIONS</h2>
+            <span class="count-badge">{{ registrations|length }}</span>
+        </div>
+
+        <div class="reg-search-bar">
+            <input type="text" id="regSearch" class="search-input" placeholder="🔍  Search by name, email or game...">
+        </div>
+
+        <div class="admin-table-wrap">
+            <table class="admin-table" id="regTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>PLAYER</th>
+                        <th>EMAIL</th>
+                        <th>PHONE</th>
+                        <th>GAME</th>
+                        <th>TEAM</th>
+                        <th>PLAYERS</th>
+                        <th>TOURNAMENT</th>
+                        <th>DATE</th>
+                        <th>ACTION</th>
+                    </tr>
+                </thead>
+                <tbody id="regBody">
+                    {% for r in registrations %}
+                    <tr>
+                        <td>{{ r.id }}</td>
+                        <td><strong>{{ r.player_name }}</strong></td>
+                        <td>{{ r.email }}</td>
+                        <td>{{ r.phone }}</td>
+                        <td>{{ r.game }}</td>
+                        <td>{{ r.team_name or '—' }}</td>
+                        <td>{{ r.players_count }}</td>
+                        <td>{{ r.tournament_name or '—' }}</td>
+                        <td>{{ r.registered_at[:10] if r.registered_at else '—' }}</td>
+                        <td>
+                            <a href="{{ url_for('delete_registration', rid=r.id) }}"
+                               class="btn btn-xs btn-danger"
+                               onclick="return confirm('Remove this registration?')">
+                                REMOVE
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="10" class="empty-row">No registrations yet.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('regSearch').addEventListener('input', function() {
+    const term = this.value.toLowerCase();
+    document.querySelectorAll('#regBody tr').forEach(row => {
+        row.style.display = row.textContent.toLowerCase().includes(term) ? '' : 'none';
+    });
+});
+</script>
+{% endblock %}

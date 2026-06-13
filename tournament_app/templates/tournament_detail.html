@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% block title %}{{ t.game_name }} — NEXUS ARENA{% endblock %}
+
+{% block content %}
+<section class="page-hero detail-hero">
+    <div class="page-hero-content">
+        <a href="{{ url_for('tournaments') }}" class="back-link">← BACK TO TOURNAMENTS</a>
+        <div class="detail-icon">{{ icons.get(t.game_name, '🎮') }}</div>
+        <h1 class="page-title">{{ t.game_name }}</h1>
+        <div class="detail-badges">
+            <span class="card-format {{ 'format-solo' if t.format == 'Solo' else 'format-team' }}">{{ t.format }}</span>
+            <span class="card-status status-{{ t.status }}">{{ t.status.upper() }}</span>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="detail-layout">
+        <div class="detail-main">
+            <div class="detail-card">
+                <h2 class="detail-section-title">// TOURNAMENT INFO</h2>
+                <div class="detail-grid">
+                    <div class="detail-info-item">
+                        <span class="detail-label">📅 DATE</span>
+                        <span class="detail-value">{{ t.date }}</span>
+                    </div>
+                    <div class="detail-info-item">
+                        <span class="detail-label">⏰ TIME</span>
+                        <span class="detail-value">{{ t.time }}</span>
+                    </div>
+                    <div class="detail-info-item">
+                        <span class="detail-label">🏆 PRIZE POOL</span>
+                        <span class="detail-value prize-text large">{{ t.prize_pool }}</span>
+                    </div>
+                    <div class="detail-info-item">
+                        <span class="detail-label">👥 MAX TEAMS</span>
+                        <span class="detail-value">{{ t.max_teams }}</span>
+                    </div>
+                    <div class="detail-info-item">
+                        <span class="detail-label">⚔️ FORMAT</span>
+                        <span class="detail-value">{{ t.format }}</span>
+                    </div>
+                    <div class="detail-info-item">
+                        <span class="detail-label">📋 REGISTRATIONS</span>
+                        <span class="detail-value">{{ reg_count }} / {{ t.max_teams }}</span>
+                    </div>
+                </div>
+
+                <div class="reg-progress-wrap">
+                    <div class="reg-progress-label">
+                        <span>Slots Filled</span>
+                        <span>{{ reg_count }}/{{ t.max_teams }}</span>
+                    </div>
+                    <div class="reg-progress-bar">
+                        <div class="reg-progress-fill" style="width: {{ [(reg_count / t.max_teams * 100), 100]|min }}%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="detail-card">
+                <h2 class="detail-section-title">// RULES & REGULATIONS</h2>
+                <div class="rules-content">
+                    <p>{{ t.rules }}</p>
+                </div>
+            </div>
+
+            <div class="detail-card countdown-card">
+                <h2 class="detail-section-title">// STARTS IN</h2>
+                <div class="big-countdown" data-date="{{ t.date }}T{{ t.time }}">
+                    <div class="countdown-unit"><span class="cd-num" id="cd-days">--</span><span class="cd-label">DAYS</span></div>
+                    <span class="cd-sep">:</span>
+                    <div class="countdown-unit"><span class="cd-num" id="cd-hours">--</span><span class="cd-label">HRS</span></div>
+                    <span class="cd-sep">:</span>
+                    <div class="countdown-unit"><span class="cd-num" id="cd-mins">--</span><span class="cd-label">MIN</span></div>
+                    <span class="cd-sep">:</span>
+                    <div class="countdown-unit"><span class="cd-num" id="cd-secs">--</span><span class="cd-label">SEC</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="detail-sidebar">
+            <div class="sidebar-card register-card">
+                <h3>READY TO COMPETE?</h3>
+                <p>Secure your spot before slots fill up!</p>
+                {% if reg_count >= t.max_teams %}
+                <div class="full-badge">⚠️ TOURNAMENT FULL</div>
+                {% else %}
+                <a href="{{ url_for('register', tournament_id=t.id) }}" class="btn btn-primary btn-block">
+                    REGISTER NOW →
+                </a>
+                <p class="slots-left">{{ t.max_teams - reg_count }} slots remaining</p>
+                {% endif %}
+            </div>
+
+            <div class="sidebar-card">
+                <h3>QUICK FACTS</h3>
+                <ul class="quick-facts">
+                    <li>✅ Free to enter</li>
+                    <li>✅ Online tournament</li>
+                    <li>✅ Certificate for top 3</li>
+                    <li>✅ Live streamed</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const countdown = document.querySelector('.big-countdown');
+if (countdown) {
+    const target = new Date(countdown.dataset.date).getTime();
+    function update() {
+        const diff = target - Date.now();
+        if (diff <= 0) {
+            document.getElementById('cd-days').textContent = '00';
+            document.getElementById('cd-hours').textContent = '00';
+            document.getElementById('cd-mins').textContent = '00';
+            document.getElementById('cd-secs').textContent = '00';
+            return;
+        }
+        document.getElementById('cd-days').textContent = String(Math.floor(diff / 86400000)).padStart(2,'0');
+        document.getElementById('cd-hours').textContent = String(Math.floor((diff % 86400000) / 3600000)).padStart(2,'0');
+        document.getElementById('cd-mins').textContent = String(Math.floor((diff % 3600000) / 60000)).padStart(2,'0');
+        document.getElementById('cd-secs').textContent = String(Math.floor((diff % 60000) / 1000)).padStart(2,'0');
+    }
+    update();
+    setInterval(update, 1000);
+}
+</script>
+{% endblock %}

@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block title %}NEXUS ARENA — Gaming Tournament Hub{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-content">
+        <div class="hero-badge">SEASON 2024 · LIVE NOW</div>
+        <h1 class="hero-title">
+            <span class="hero-line">ENTER THE</span>
+            <span class="hero-line accent-line">ARENA</span>
+        </h1>
+        <p class="hero-sub">Compete. Dominate. Become Legend.<br>Join thousands of elite gamers in high-stakes tournaments.</p>
+        <div class="hero-cta">
+            <a href="{{ url_for('tournaments') }}" class="btn btn-primary">VIEW TOURNAMENTS</a>
+            <a href="{{ url_for('register') }}" class="btn btn-outline">REGISTER NOW</a>
+        </div>
+        <div class="hero-stats">
+            <div class="stat-item">
+                <span class="stat-num" data-target="{{ total_tournaments }}">0</span>
+                <span class="stat-label">TOURNAMENTS</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <span class="stat-num" data-target="{{ total_registrations }}">0</span>
+                <span class="stat-label">REGISTRATIONS</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <span class="stat-num">$22K+</span>
+                <span class="stat-label">PRIZE POOLS</span>
+            </div>
+        </div>
+    </div>
+    <div class="hero-visual">
+        <div class="hero-hexagon">
+            <div class="hex-inner">🎮</div>
+        </div>
+        <div class="orbit orbit-1"></div>
+        <div class="orbit orbit-2"></div>
+        <div class="orbit orbit-3"></div>
+    </div>
+</section>
+
+<section class="section tournaments-section">
+    <div class="section-header">
+        <div class="section-tag">// UPCOMING BATTLES</div>
+        <h2 class="section-title">FEATURED TOURNAMENTS</h2>
+    </div>
+
+    <div class="cards-grid">
+        {% for t in tournaments %}
+        <div class="tournament-card" style="--delay: {{ loop.index0 * 0.1 }}s">
+            <div class="card-glow"></div>
+            <div class="card-header">
+                <div class="card-icon">{{ icons.get(t.game_name, '🎮') }}</div>
+                <span class="card-format {{ 'format-solo' if t.format == 'Solo' else 'format-team' }}">{{ t.format }}</span>
+            </div>
+            <h3 class="card-title">{{ t.game_name }}</h3>
+            <div class="card-meta">
+                <div class="meta-item">
+                    <span class="meta-icon">📅</span>
+                    <span>{{ t.date }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-icon">⏰</span>
+                    <span>{{ t.time }}</span>
+                </div>
+                <div class="meta-item prize-item">
+                    <span class="meta-icon">🏆</span>
+                    <span class="prize-text">{{ t.prize_pool }}</span>
+                </div>
+            </div>
+            <div class="card-countdown" data-date="{{ t.date }}T{{ t.time }}"></div>
+            <div class="card-actions">
+                <a href="{{ url_for('tournament_detail', tid=t.id) }}" class="btn btn-sm btn-ghost">DETAILS</a>
+                <a href="{{ url_for('register', tournament_id=t.id) }}" class="btn btn-sm btn-primary">REGISTER</a>
+            </div>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <p>No upcoming tournaments. Check back soon!</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if tournaments|length >= 6 %}
+    <div class="section-footer">
+        <a href="{{ url_for('tournaments') }}" class="btn btn-outline">VIEW ALL TOURNAMENTS →</a>
+    </div>
+    {% endif %}
+</section>
+
+<section class="section games-section">
+    <div class="section-header">
+        <div class="section-tag">// SUPPORTED TITLES</div>
+        <h2 class="section-title">BATTLE ARENAS</h2>
+    </div>
+    <div class="games-grid">
+        <div class="game-chip">🎯 VALORANT</div>
+        <div class="game-chip">🔫 PUBG MOBILE</div>
+        <div class="game-chip">⚽ FIFA 24</div>
+        <div class="game-chip">🔥 FREE FIRE</div>
+        <div class="game-chip">💥 CALL OF DUTY</div>
+        <div class="game-chip">⚔️ MORTAL KOMBAT</div>
+    </div>
+</section>
+
+<section class="section how-section">
+    <div class="section-header">
+        <div class="section-tag">// GET STARTED</div>
+        <h2 class="section-title">HOW IT WORKS</h2>
+    </div>
+    <div class="steps-grid">
+        <div class="step-card">
+            <div class="step-num">01</div>
+            <div class="step-icon">🔍</div>
+            <h3>BROWSE</h3>
+            <p>Explore upcoming tournaments and find your game</p>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step-card">
+            <div class="step-num">02</div>
+            <div class="step-icon">📝</div>
+            <h3>REGISTER</h3>
+            <p>Submit your player or team details in seconds</p>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step-card">
+            <div class="step-num">03</div>
+            <div class="step-icon">⚔️</div>
+            <h3>COMPETE</h3>
+            <p>Show up, play hard, and claim your prize</p>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.stat-num[data-target]').forEach(el => {
+    const target = parseInt(el.dataset.target);
+    let current = 0;
+    const step = Math.ceil(target / 40);
+    const timer = setInterval(() => {
+        current = Math.min(current + step, target);
+        el.textContent = current;
+        if (current >= target) clearInterval(timer);
+    }, 40);
+});
+</script>
+{% endblock %}

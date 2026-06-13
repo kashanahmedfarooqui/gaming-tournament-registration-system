@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}NEXUS ARENA{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+     {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="scanline"></div>
+
+<nav class="navbar">
+    <div class="nav-container">
+        <a href="{{ url_for('home') }}" class="nav-logo">
+            <span class="logo-bracket">[</span>NEXUS<span class="logo-accent">ARENA</span><span class="logo-bracket">]</span>
+        </a>
+        <button class="nav-toggle" id="navToggle">
+            <span></span><span></span><span></span>
+        </button>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="{{ url_for('home') }}" class="nav-link {% if request.endpoint == 'home' %}active{% endif %}">HOME</a></li>
+            <li><a href="{{ url_for('tournaments') }}" class="nav-link {% if request.endpoint in ['tournaments','tournament_detail'] %}active{% endif %}">TOURNAMENTS</a></li>
+            <li><a href="{{ url_for('register') }}" class="nav-link {% if request.endpoint == 'register' %}active{% endif %}">REGISTER</a></li>
+            <li><a href="{{ url_for('admin') }}" class="nav-link nav-admin {% if request.endpoint == 'admin' %}active{% endif %}">ADMIN</a></li>
+        </ul>
+    </div>
+</nav>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-container">
+        {% for category, message in messages %}
+        <div class="flash-msg flash-{{ category }}">
+            <span>{{ message }}</span>
+            <button class="flash-close" onclick="this.parentElement.remove()">✕</button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+{% endwith %}
+
+<main>
+    {% block content %}{% endblock %}
+</main>
+
+<footer class="footer">
+    <div class="footer-inner">
+        <div class="footer-logo">
+            <span class="logo-bracket">[</span>NEXUS<span class="logo-accent">ARENA</span><span class="logo-bracket">]</span>
+        </div>
+        <p class="footer-tagline">WHERE LEGENDS ARE BORN</p>
+        <p class="footer-copy">© 2024 Nexus Arena · All rights reserved</p>
+    </div>
+</footer>
+
+<script src="{{ url_for('static', filename='main.js') }}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

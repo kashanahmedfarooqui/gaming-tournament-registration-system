@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Registration Confirmed — NEXUS ARENA{% endblock %}
+
+{% block content %}
+<section class="success-page">
+    <div class="success-container">
+        <div class="success-icon-wrap">
+            <div class="success-ring"></div>
+            <div class="success-icon">✓</div>
+        </div>
+        <div class="success-tag">REGISTRATION CONFIRMED</div>
+        <h1 class="success-title">YOU'RE IN THE ARENA!</h1>
+        <p class="success-name">Welcome, <span class="accent">{{ name }}</span></p>
+        {% if game %}
+        <p class="success-game">Registered for <strong>{{ icons.get(game, '🎮') }} {{ game }}</strong></p>
+        {% endif %}
+        <p class="success-msg">Your registration has been submitted. Check your email for confirmation details. Get ready to compete!</p>
+        
+        <div class="success-steps">
+            <div class="ss-item">
+                <span class="ss-num">01</span>
+                <span>Check your email for confirmation</span>
+            </div>
+            <div class="ss-item">
+                <span class="ss-num">02</span>
+                <span>Join our Discord for tournament updates</span>
+            </div>
+            <div class="ss-item">
+                <span class="ss-num">03</span>
+                <span>Show up on tournament day and dominate</span>
+            </div>
+        </div>
+
+        <div class="success-actions">
+            <a href="{{ url_for('tournaments') }}" class="btn btn-outline">BROWSE MORE</a>
+            <a href="{{ url_for('register') }}" class="btn btn-primary">REGISTER ANOTHER</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

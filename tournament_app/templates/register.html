@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+{% block title %}Register — NEXUS ARENA{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="page-hero-content">
+        <div class="section-tag">// JOIN THE BATTLE</div>
+        <h1 class="page-title">PLAYER <span class="accent">REGISTRATION</span></h1>
+        <p>Fill in your details to secure your spot in the arena.</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="form-layout">
+        <div class="form-card">
+            <form id="registrationForm" method="POST" action="{{ url_for('submit') }}" novalidate>
+                
+                <div class="form-section">
+                    <h3 class="form-section-title">// SELECT TOURNAMENT</h3>
+                    <div class="form-group">
+                        <label for="tournament_id" class="form-label">Tournament</label>
+                        <select name="tournament_id" id="tournament_id" class="form-input form-select">
+                            <option value="">— Open Registration (No specific tournament) —</option>
+                            {% for t in tournaments %}
+                            <option value="{{ t.id }}" {% if selected and selected.id == t.id %}selected{% endif %}>
+                                {{ icons.get(t.game_name, '🎮') }} {{ t.game_name }} — {{ t.date }} · Prize: {{ t.prize_pool }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Player Info -->
+                <div class="form-section">
+                    <h3 class="form-section-title">// PLAYER DETAILS</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="player_name" class="form-label">Player Name <span class="required">*</span></label>
+                            <input type="text" id="player_name" name="player_name" class="form-input"
+                                   placeholder="Your in-game name" required>
+                            <span class="form-error" id="err-name"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="email" class="form-label">Email Address <span class="required">*</span></label>
+                            <input type="email" id="email" name="email" class="form-input"
+                                   placeholder="player@email.com" required>
+                            <span class="form-error" id="err-email"></span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="phone" class="form-label">Phone Number <span class="required">*</span></label>
+                            <input type="tel" id="phone" name="phone" class="form-input"
+                                   placeholder="+92 300 0000000" required>
+                            <span class="form-error" id="err-phone"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="game" class="form-label">Select Game <span class="required">*</span></label>
+                            <select id="game" name="game" class="form-input form-select" required>
+                                <option value="">— Choose your game —</option>
+                                <option value="VALORANT">🎯 VALORANT</option>
+                                <option value="PUBG MOBILE">🔫 PUBG MOBILE</option>
+                                <option value="FIFA 24">⚽ FIFA 24</option>
+                                <option value="FREE FIRE">🔥 FREE FIRE</option>
+                                <option value="CALL OF DUTY">💥 CALL OF DUTY</option>
+                                <option value="MORTAL KOMBAT">⚔️ MORTAL KOMBAT</option>
+                            </select>
+                            <span class="form-error" id="err-game"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section" id="teamSection">
+                    <h3 class="form-section-title">// TEAM DETAILS <span class="optional-tag">(OPTIONAL)</span></h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="team_name" class="form-label">Team Name</label>
+                            <input type="text" id="team_name" name="team_name" class="form-input"
+                                   placeholder="Leave blank for solo">
+                        </div>
+                        <div class="form-group">
+                            <label for="players_count" class="form-label">Number of Players <span class="required">*</span></label>
+                            <input type="number" id="players_count" name="players_count" class="form-input"
+                                   min="1" max="10" value="1" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="checkbox-wrap">
+                        <input type="checkbox" id="terms" required>
+                        <label for="terms">I agree to the tournament rules and fair play policy. I confirm all player details are accurate.</label>
+                    </div>
+                    <span class="form-error" id="err-terms"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block btn-submit" id="submitBtn">
+                    <span class="btn-text">SUBMIT REGISTRATION</span>
+                    <span class="btn-loader" style="display:none">PROCESSING...</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="form-sidebar">
+            {% if selected %}
+            <div class="sidebar-card selected-tournament">
+                <h3>SELECTED TOURNAMENT</h3>
+                <div class="sel-icon">{{ icons.get(selected.game_name, '🎮') }}</div>
+                <h4>{{ selected.game_name }}</h4>
+                <p>📅 {{ selected.date }}</p>
+                <p>⏰ {{ selected.time }}</p>
+                <p class="prize-text">🏆 {{ selected.prize_pool }}</p>
+            </div>
+            {% endif %}
+            
+            <div class="sidebar-card">
+                <h3>REGISTRATION TIPS</h3>
+                <ul class="tips-list">
+                    <li>Use your exact in-game username</li>
+                    <li>Ensure email is accessible for updates</li>
+                    <li>Register at least 24hrs before event</li>
+                    <li>Team name must match in-game clan tag</li>
+                </ul>
+            </div>
+
+            <div class="sidebar-card">
+                <h3>SUPPORT</h3>
+                <p>Need help? Contact our tournament coordinators:</p>
+                <p class="support-email">support@nexusarena.gg</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const tournamentSelect = document.getElementById('tournament_id');
+const gameSelect = document.getElementById('game');
+const gameMap = {
+    {% for t in tournaments %}
+    '{{ t.id }}': '{{ t.game_name }}',
+    {% endfor %}
+};
+
+tournamentSelect.addEventListener('change', function() {
+    const val = this.value;
+    if (val && gameMap[val]) {
+        gameSelect.value = gameMap[val];
+    }
+});
+
+gameSelect.addEventListener('change', function() {
+    const soloGames = ['FIFA 24', 'MORTAL KOMBAT'];
+    const teamSection = document.getElementById('teamSection');
+    const pc = document.getElementById('players_count');
+    if (soloGames.includes(this.value)) {
+        pc.value = 1;
+        pc.setAttribute('max', '1');
+    } else {
+        pc.setAttribute('max', '10');
+    }
+});
+
+document.getElementById('registrationForm').addEventListener('submit', function(e) {
+    let valid = true;
+    const errors = {};
+
+    const name = document.getElementById('player_name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const game = document.getElementById('game').value;
+    const terms = document.getElementById('terms').checked;
+
+    if (!name) { errors['err-name'] = 'Player name is required.'; valid = false; }
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { errors['err-email'] = 'Valid email required.'; valid = false; }
+    if (!phone || phone.replace(/\D/g,'').length < 10) { errors['err-phone'] = 'Valid phone number required (min 10 digits).'; valid = false; }
+    if (!game) { errors['err-game'] = 'Please select a game.'; valid = false; }
+    if (!terms) { errors['err-terms'] = 'You must agree to the rules.'; valid = false; }
+
+    document.querySelectorAll('.form-error').forEach(el => el.textContent = '');
+    document.querySelectorAll('.form-input').forEach(el => el.classList.remove('input-error'));
+
+    Object.entries(errors).forEach(([id, msg]) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = msg;
+    });
+
+    if (!valid) {
+        e.preventDefault();
+        // Scroll to first error
+        const firstErr = document.querySelector('.form-error:not(:empty)');
+        if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } else {
+        const btn = document.getElementById('submitBtn');
+        btn.querySelector('.btn-text').style.display = 'none';
+        btn.querySelector('.btn-loader').style.display = 'inline';
+        btn.disabled = true;
+    }
+});
+</script>
+{% endblock %}

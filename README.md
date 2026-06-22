@@ -2,6 +2,12 @@
 
 A full-stack web app for managing gaming tournaments, built with Flask + SQLite + vanilla JS.
 
+## 🚀 Live Demo
+
+Click the badge below to explore the live deployment:
+
+[![Live Demo](https://img.shields.io/badge/Demo-Hugging_Face-ffd21e?style=for-the-badge&logo=huggingface)](https://huggingface.co/spaces/kashanahmedfarooqui/nexus-arena)
+
 ## Tech Stack
 - **Backend**: Python / Flask
 - **Database**: SQLite (auto-created on first run)
